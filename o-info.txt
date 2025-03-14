@@ -1,0 +1,19 @@
+composer create-project --prefer-dist laravel/laravel user_category_product "11.*"
+composer require laravel/breeze --dev
+php artisan breeze:install blade
+php artisan migrate
+
+run project
+---------------
+npm run dev
+php artisan serve
+
+
+composer require spatie/laravel-permission
+php artisan vendor:publish --provider="Spatie\Permission\PermissionServiceProvider"
+php artisan migrate
+
+
+product management
+----------------------
+https://github.com/devtamin/Laravel-CRUD-for-Beginners
