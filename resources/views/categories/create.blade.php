@@ -34,34 +34,34 @@
     </form>
 </div>
 @push('script')
-<script>
-    $(document).ready(function() {
-        $("#categoryForm").validate({
-            rules: {
-                name: {
-                    required: true,
-                    minlength: 3
+    <script>
+        $(document).ready(function() {
+            $("#categoryForm").validate({
+                rules: {
+                    name: {
+                        required: true,
+                        minlength: 3
+                    },
+                    status: {
+                        required: true
+                    }
                 },
-                status: {
-                    required: true
-                }
-            },
-            messages: {
-                name: {
-                    required: "Category name is required",
-                    minlength: "Category name must be at least 3 characters"
+                messages: {
+                    name: {
+                        required: "Category name is required",
+                        minlength: "Category name must be at least 3 characters"
+                    },
+                    status: {
+                        required: "Please select a status"
+                    }
                 },
-                status: {
-                    required: "Please select a status"
+                errorElement: "div",
+                errorPlacement: function(error, element) {
+                    error.addClass("text-danger");
+                    element.closest(".mb-3").append(error);
                 }
-            },
-            errorElement: "div",
-            errorPlacement: function(error, element) {
-                error.addClass("text-danger");
-                element.closest(".mb-3").append(error);
-            }
+            });
         });
-    });
-</script>
+    </script>
 @endpush
 @endsection

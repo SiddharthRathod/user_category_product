@@ -16,9 +16,14 @@
                         {{ __('Dashboard') }}
                     </x-nav-link>
                     @auth
-                        <x-nav-link :href="route('categories.index')" :active="request()->routeIs('categories.index')">
-                            {{ __('Categories') }}
-                        </x-nav-link>
+                        @if(auth()->user()->hasRole('user'))
+                            <x-nav-link :href="route('categories.index')" :active="request()->routeIs('categories.index')">
+                                {{ __('Categories') }}
+                            </x-nav-link>
+                            <x-nav-link :href="route('products.index')" :active="request()->routeIs('products.index')">
+                                {{ __('Products') }}
+                            </x-nav-link>
+                        @endif    
                     @endauth
                 </div>
             </div>
