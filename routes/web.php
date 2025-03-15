@@ -5,12 +5,9 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ProductController;
 
-// Route::get('/', function () {
-//     return view('welcome');
-// });
-
 Route::get('/', [ProductController::class, 'productDashboard'])->name('home');
-Route::get('/products/data', [ProductController::class, 'getProductsData'])->name('products.data');
+Route::get('/products/data', [ProductController::class, 'getProducts'])->name('products.data');
+Route::get('/products/{id}', [ProductController::class, 'show'])->name('products.show');
 
 Route::get('/dashboard', function () {
     return view('dashboard');

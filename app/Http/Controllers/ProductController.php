@@ -61,9 +61,10 @@ class ProductController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Product $product)
+    public function show(Product $product, $id)
     {
-        //
+        $product = Product::with('category', 'user')->findOrFail($id);
+        return view('products.show', compact('product'));
     }
 
     /**
@@ -96,7 +97,7 @@ class ProductController extends Controller
 
     /**
      * Remove the specified resource from storage.
-     */
+    */
     public function destroy(Product $product)
     {
         $this->authorize('delete', $product);
@@ -104,40 +105,43 @@ class ProductController extends Controller
         return redirect()->route('products.index')->with('success', 'Product deleted successfully.');
     }
 
-    public function productDashboard(){
-        
-        $categories = Category::where('status', 'active')->get();
-        $products = Product::with(['category', 'user'])->latest()->paginate(3);
-
-        return view('home', compact('categories', 'products'));
+    /**
+     * Display the product dashboard.
+     * 
+     * This function fetches active categories and the latest products 
+     * with pagination for display on the home page.
+    */
+    public function productDashboard() {        
+        return view('home');
     }
 
-    public function getProductsData(Request $request)
+    /**
+     * Fetch products with filtering options for DataTables.
+     * 
+     * This function supports:
+     * - Filtering by category
+     * - Filtering by date range
+     * - Fetching related user and category information
+    */
+    public function getProducts(Request $request)
     {
-
-        \Log::info('Request Data:', $request->all()); // Debug request data
         
-        $query = Product::with(['category', 'user']);
-
-        // Apply Category Filter
-        if ($request->has('category_id') && !empty($request->category_id)) {
-            $query->where('category_id', $request->category_id);
-        }
-
-        // Apply Date Range Filter
-        if ($request->has('start_date') && $request->has('end_date')) {
-            $query->whereBetween('created_at', [$request->start_date, $request->end_date]);
-        }
-
-        return DataTables::of($query)
-            ->addColumn('user', function ($product) {
-                return $product->user ? $product->user->name : 'N/A';
+        $products = Product::with('category', 'user')
+            ->where('status', 'active') 
+            ->whereHas('category', function ($query) {
+                $query->where('status', 'active');
             })
-            ->addColumn('category', function ($product) {
-                return $product->category ? $product->category->name : 'N/A';
-            })
+            ->when($request->category_id, fn($query) => $query->where('category_id', $request->category_id))
+            ->when($request->date_from && $request->date_to, function ($query) use ($request) {
+                $query->whereBetween('created_at', [$request->date_from, $request->date_to]);
+            });
+
+        return DataTables::of($products)
+            ->addColumn('category', fn($product) => $product->category->name ?? 'N/A')
+            ->addColumn('user', fn($product) => $product->user->name ?? 'Unknown')
+            ->editColumn('created_at', fn($product) => $product->created_at->format('d M Y, h:i A'))
             ->addColumn('action', function ($product) {
-                return '<a href="#" class="btn btn-primary btn-sm">View</a>';
+                return '<a href="' . route('products.show', $product->id) . '" class="btn btn-sm btn-primary">View</a>';
             })
             ->rawColumns(['action'])
             ->make(true);

@@ -42,6 +42,7 @@ class ProductRequest extends FormRequest
             ],
             'price' => 'required|numeric|min:0',
             'quantity' => 'required|integer|min:1|max:2147483647',
+            'status' => 'required|in:active,inactive',
         ];
     }
 

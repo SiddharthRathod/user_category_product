@@ -34,6 +34,15 @@
             <input type="number" name="quantity" class="form-control">
         </div>
 
+        <div class="form-group">
+            <label for="status">Status</label>
+            <select name="status" id="status" class="form-control">
+                <option value="active" {{ old('status', $product->status ?? '') == 'active' ? 'selected' : '' }}>Active</option>
+                <option value="inactive" {{ old('status', $product->status ?? '') == 'inactive' ? 'selected' : '' }}>Inactive</option>
+            </select>
+        </div>
+
+
         <button type="submit" class="btn btn-success">Save</button>
         <a href="{{ route('products.index') }}" class="btn btn-secondary">Cancel</a>
     </form>

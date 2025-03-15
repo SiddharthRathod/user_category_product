@@ -2,95 +2,89 @@
 
 @section('content')
 <div class="container mt-4">
-    <h2 class="text-center">Product Listings</h2>
+    <h2 class="mb-4">Available Products</h2>
 
     <div class="row mb-3">
         <div class="col-md-4">
-            <label>Category:</label>
-            <select id="category-filter" class="form-control">
+            <label>Filter by Category:</label>
+            <select id="categoryFilter" class="form-control">
                 <option value="">All Categories</option>
-                @foreach ($categories as $category)
+                {{-- Fetch categories dynamically --}}
+                @foreach(App\Models\Category::all() as $category)
                     <option value="{{ $category->id }}">{{ $category->name }}</option>
                 @endforeach
             </select>
         </div>
-
         <div class="col-md-4">
             <label>Date Range:</label>
-            <input type="text" id="date-range" class="form-control">
-        </div>
-
-        <div class="col-md-4">
-            <button id="filter-btn" class="btn btn-success mt-4">Apply Filter</button>
+            <input type="text" id="dateRange" class="form-control">
         </div>
     </div>
 
-    <table id="products-table" class="table table-striped">
+    <table id="productsTable" class="table table-bordered">
         <thead>
             <tr>
                 <th>ID</th>
-                <th>Product</th>
+                <th>Name</th>
                 <th>Category</th>
-                <th>Owner</th>
                 <th>Price</th>
                 <th>Quantity</th>
+                <th>User</th>
                 <th>Created At</th>
                 <th>Action</th>
             </tr>
         </thead>
     </table>
 </div>
-
 @push('script')
-<script>
+    <script>
     $(document).ready(function() {
-        let table = $('#products-table').DataTable({
+        let table = $('#productsTable').DataTable({
             processing: true,
             serverSide: true,
             ajax: {
                 url: "{{ route('products.data') }}",
                 data: function(d) {
-                    d._token = "{{ csrf_token() }}";
-                    d.category_id = $('#category-filter').val();
-                    let dateRange = $('#date-range').val().split(' - ');
-                    d.start_date = dateRange[0] || null;
-                    d.end_date = dateRange[1] || null;
+                    d.category_id = $('#categoryFilter').val();
+                    let dateRange = $('#dateRange').val();
+                    if (dateRange) {
+                        let dates = dateRange.split(' - ');
+                        d.date_from = dates[0];
+                        d.date_to = dates[1];
+                    }
                 }
             },
             columns: [
-                { data: 'id', name: 'id' },
-                { data: 'name', name: 'name' },
-                { data: 'category', name: 'category.name' },
-                { data: 'user', name: 'user.name' },
-                { data: 'price', name: 'price' },
-                { data: 'quantity', name: 'quantity' },
-                { data: 'created_at', name: 'created_at' },
-                { data: 'action', name: 'action', orderable: false, searchable: false }
-            ],
-            order: [[6, 'desc']],
-            pageLength: 10
+                { data: 'id' },
+                { data: 'name' },
+                { data: 'category', orderable: false },
+                { data: 'price' },
+                { data: 'quantity' },
+                { data: 'user', orderable: false },
+                { data: 'created_at' },
+                { data: 'action', orderable: false, searchable: false }
+            ]
         });
 
-        // Apply Filters
-        $('#filter-btn').on('click', function() {
-            table.ajax.reload();
+        $('#categoryFilter, #dateRange').change(function() {
+            table.draw();
         });
 
-        // Date Range Picker
-        $('#date-range').daterangepicker({
+        $('#dateRange').daterangepicker({
             autoUpdateInput: false,
             locale: { cancelLabel: 'Clear' }
         });
 
-        $('#date-range').on('apply.daterangepicker', function(ev, picker) {
+        $('#dateRange').on('apply.daterangepicker', function(ev, picker) {
             $(this).val(picker.startDate.format('YYYY-MM-DD') + ' - ' + picker.endDate.format('YYYY-MM-DD'));
+            table.draw();
         });
 
-        $('#date-range').on('cancel.daterangepicker', function(ev, picker) {
+        $('#dateRange').on('cancel.daterangepicker', function(ev, picker) {
             $(this).val('');
+            table.draw();
         });
     });
-</script>
+    </script>
 @endpush
-
 @endsection
