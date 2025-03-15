@@ -8,6 +8,7 @@ use App\Models\Product;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Yajra\DataTables\Facades\DataTables;
 
 class ProductController extends Controller
 {
@@ -102,4 +103,44 @@ class ProductController extends Controller
         $product->delete();
         return redirect()->route('products.index')->with('success', 'Product deleted successfully.');
     }
+
+    public function productDashboard(){
+        
+        $categories = Category::where('status', 'active')->get();
+        $products = Product::with(['category', 'user'])->latest()->paginate(3);
+
+        return view('home', compact('categories', 'products'));
+    }
+
+    public function getProductsData(Request $request)
+    {
+
+        \Log::info('Request Data:', $request->all()); // Debug request data
+        
+        $query = Product::with(['category', 'user']);
+
+        // Apply Category Filter
+        if ($request->has('category_id') && !empty($request->category_id)) {
+            $query->where('category_id', $request->category_id);
+        }
+
+        // Apply Date Range Filter
+        if ($request->has('start_date') && $request->has('end_date')) {
+            $query->whereBetween('created_at', [$request->start_date, $request->end_date]);
+        }
+
+        return DataTables::of($query)
+            ->addColumn('user', function ($product) {
+                return $product->user ? $product->user->name : 'N/A';
+            })
+            ->addColumn('category', function ($product) {
+                return $product->category ? $product->category->name : 'N/A';
+            })
+            ->addColumn('action', function ($product) {
+                return '<a href="#" class="btn btn-primary btn-sm">View</a>';
+            })
+            ->rawColumns(['action'])
+            ->make(true);
+    }
+
 }

@@ -5,9 +5,12 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ProductController;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+// Route::get('/', function () {
+//     return view('welcome');
+// });
+
+Route::get('/', [ProductController::class, 'productDashboard'])->name('home');
+Route::get('/products/data', [ProductController::class, 'getProductsData'])->name('products.data');
 
 Route::get('/dashboard', function () {
     return view('dashboard');
