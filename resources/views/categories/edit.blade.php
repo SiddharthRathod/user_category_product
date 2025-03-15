@@ -7,13 +7,13 @@
 
 <div class="container">
     <h2>Edit Category</h2>
-    <form action="{{ route('categories.update', $category->id) }}" method="POST">
+    <form action="{{ route('categories.update', $category->id) }}" method="POST" id="categoryForm">
         @csrf
         @method('PUT')
 
         <div class="mb-3">
             <label class="form-label">Category Name</label>
-            <input type="text" name="name" class="form-control" value="{{ $category->name }}" required>
+            <input type="text" name="name" class="form-control" value="{{ $category->name }}">
         </div>
         <div class="mb-3">
             <label class="form-label">Parent Category (Optional)</label>
@@ -39,4 +39,34 @@
         <a href="{{ route('categories.index') }}" class="btn btn-secondary">Cancel</a>
     </form>
 </div>
+@push('script')
+<script>
+    $(document).ready(function() {
+        $("#categoryForm").validate({
+            rules: {
+                name: {
+                    required: true,
+                    minlength: 3
+                },
+                status: {
+                    required: true
+                }
+            },
+            messages: {
+                name: {
+                    required: "Category name is required",
+                    minlength: "Category name must be at least 3 characters"
+                },
+                status: {
+                    required: "Please select a status"
+                }
+            },
+            errorElement: "div",
+            errorPlacement: function(error, element) {
+                error.addClass("text-danger");
+                element.closest(".mb-3").append(error);
+            }
+        });
+    });
+</script>
 @endsection

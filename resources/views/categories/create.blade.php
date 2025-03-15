@@ -6,7 +6,7 @@
 
 <div class="container">
     <h2>Add Category</h2>
-    <form action="{{ route('categories.store') }}" method="POST">
+    <form action="{{ route('categories.store') }}" method="POST" id="categoryForm">
         @csrf
         <div class="mb-3">
             <label class="form-label">Category Name</label>
@@ -33,4 +33,35 @@
         <a href="{{ route('categories.index') }}" class="btn btn-secondary">Cancel</a>
     </form>
 </div>
+@push('script')
+<script>
+    $(document).ready(function() {
+        $("#categoryForm").validate({
+            rules: {
+                name: {
+                    required: true,
+                    minlength: 3
+                },
+                status: {
+                    required: true
+                }
+            },
+            messages: {
+                name: {
+                    required: "Category name is required",
+                    minlength: "Category name must be at least 3 characters"
+                },
+                status: {
+                    required: "Please select a status"
+                }
+            },
+            errorElement: "div",
+            errorPlacement: function(error, element) {
+                error.addClass("text-danger");
+                element.closest(".mb-3").append(error);
+            }
+        });
+    });
+</script>
+@endpush
 @endsection
