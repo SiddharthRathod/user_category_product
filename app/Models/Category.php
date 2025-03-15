@@ -42,5 +42,11 @@ class Category extends Model
         return $this->children()->with('childrenRecursive')->where('status','active');
     }
 
+    // Relationship for products
+    public function products()
+    {
+        return $this->hasMany(Product::class);
+    }
+
 }
 

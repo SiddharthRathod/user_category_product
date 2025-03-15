@@ -17,6 +17,7 @@
                     <th>Category</th>
                     <th>Price</th>
                     <th>Quantity</th>
+                    <th>Status</th>
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -28,6 +29,7 @@
                         <td>{{ $product->category->name }}</td>
                         <td>${{ number_format($product->price, 2) }}</td>
                         <td>{{ $product->quantity }}</td>
+                        <td>{{ $product->status }}</td>
                         <td>
                             <a href="{{ route('products.edit', $product->id) }}" class="btn btn-warning btn-sm">Edit</a>
                             

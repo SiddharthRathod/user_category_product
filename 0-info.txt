@@ -23,3 +23,12 @@ https://github.com/devtamin/Laravel-CRUD-for-Beginners
 
 
 composer require yajra/laravel-datatables-oracle
+
+composer require laravel/sanctum
+composer require darkaonline/l5-swagger
+php artisan vendor:publish --provider "L5Swagger\L5SwaggerServiceProvider"
+
+
+Generate documentation:
+--------------------------
+php artisan l5-swagger:generate

@@ -9,6 +9,7 @@ use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\Facades\DataTables;
+use App\Http\Requests\ProductRequest;
 
 class ProductController extends Controller
 {
@@ -37,7 +38,7 @@ class ProductController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(ProductRequest $request)
     {
         $this->authorize('create', Product::class);
         $request->validate([
@@ -80,16 +81,9 @@ class ProductController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Product $product)
+    public function update(ProductRequest $request, Product $product)
     {
         $this->authorize('update', $product);
-        $request->validate([
-            'category_id' => 'required|exists:categories,id',
-            'name' => 'required|string|unique:products,name,' . $product->id,
-            'price' => 'required|numeric|min:0',
-            'quantity' => 'required|integer|min:1',
-        ]);
-
         $product->update($request->all());
 
         return redirect()->route('products.index')->with('success', 'Product updated successfully.');

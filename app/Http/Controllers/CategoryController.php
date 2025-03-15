@@ -49,8 +49,14 @@ class CategoryController extends Controller
 
     public function destroy(Category $category)
     {
+        // Check if the category has any subcategories
         if ($category->children()->count() > 0) {
             return redirect()->route('categories.index')->with('error', 'Category has subcategories and cannot be deleted.');
+        }
+
+        // Check if the category has any associated products
+        if ($category->products()->count() > 0) {
+            return redirect()->route('categories.index')->with('error', 'Category has associated products and cannot be deleted.');
         }
 
         $category->delete();

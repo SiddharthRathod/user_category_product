@@ -7,7 +7,6 @@ use App\Http\Controllers\ProductController;
 
 Route::get('/', [ProductController::class, 'productDashboard'])->name('home');
 Route::get('/products/data', [ProductController::class, 'getProducts'])->name('products.data');
-Route::get('/products/{id}', [ProductController::class, 'show'])->name('products.show');
 
 Route::get('/dashboard', function () {
     return view('dashboard');
@@ -35,6 +34,8 @@ Route::middleware('auth')->group(function () {
     });
 
 });
+
+Route::get('/products/{id}', [ProductController::class, 'show'])->name('products.show');
 
 require __DIR__.'/auth.php';
 
