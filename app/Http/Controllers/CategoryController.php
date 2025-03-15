@@ -4,13 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use Illuminate\Http\Request;
-use Spatie\Permission\Models\Role;
+use App\Http\Requests\CategoryRequest;
 
 class CategoryController extends Controller
 {
     public function index()
     {
-        $categories = Category::whereNull('parent_id')->with('children')->get();
+        $categories = Category::with('childrenRecursive')->get();
         return view('categories.index', compact('categories'));
     }
 
@@ -20,14 +20,9 @@ class CategoryController extends Controller
         return view('categories.create', compact('categories'));
     }
 
-    public function store(Request $request)
+    public function store(CategoryRequest $request)
     {
-        $request->validate([
-            'name' => 'required|string|max:255|unique:categories,name',
-            'status' => 'required|in:active,inactive',
-            'parent_id' => 'nullable|exists:categories,id'
-        ]);
-
+        
         Category::create($request->all());
 
         return redirect()->route('categories.index')->with('success', 'Category created successfully.');
@@ -35,13 +30,15 @@ class CategoryController extends Controller
 
     public function edit(Category $category)
     {
-        return view('categories.edit', compact('category'));
+        $categories = Category::whereNull('parent_id')->get();
+        return view('categories.edit', compact('category', 'categories'));
     }
 
-    public function update(Request $request, Category $category)
+    public function update(CategoryRequest $request, Category $category)
     {
         $request->validate([
             'name' => 'required|string|max:255',
+            'parent_id' => 'nullable|exists:categories,id',
             'status' => 'required|in:active,inactive',
         ]);
 
@@ -52,8 +49,18 @@ class CategoryController extends Controller
 
     public function destroy(Category $category)
     {
+        if ($category->children()->count() > 0) {
+            return redirect()->route('categories.index')->with('error', 'Category has subcategories and cannot be deleted.');
+        }
+
         $category->delete();
+
         return redirect()->route('categories.index')->with('success', 'Category deleted successfully.');
     }
-}
 
+    public function getSubcategories($parent_id)
+    {
+        $subcategories = Category::where('parent_id', $parent_id)->get();
+        return response()->json($subcategories);
+    }
+}

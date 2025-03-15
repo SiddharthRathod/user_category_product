@@ -14,6 +14,7 @@
             <div class="collapse navbar-collapse">
                 <ul class="navbar-nav ms-auto">
                     @auth
+                        <li class="nav-item"><a class="nav-link" href="{{ route('dashboard') }}">Dashboard</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ route('categories.index') }}">Categories</a></li>
                         <li class="nav-item">
                             <form action="{{ route('logout') }}" method="POST">

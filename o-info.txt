@@ -3,6 +3,9 @@ composer require laravel/breeze --dev
 php artisan breeze:install blade
 php artisan migrate
 
+npm install
+npm install vite --save-dev
+
 run project
 ---------------
 npm run dev

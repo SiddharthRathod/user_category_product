@@ -1,7 +1,10 @@
 
-@extends('layouts.app')
+@extends('layouts.webapp')
 
 @section('content')
+
+@include('components.flash-message')
+
 <div class="container">
     <h2>Edit Category</h2>
     <form action="{{ route('categories.update', $category->id) }}" method="POST">
@@ -14,12 +17,14 @@
         </div>
         <div class="mb-3">
             <label class="form-label">Parent Category (Optional)</label>
-            <select name="parent_id" class="form-control">
+            <select name="parent_id" id="parent-category" class="form-control">
                 <option value="">None</option>
-                @foreach ($categories as $parent)
-                    <option value="{{ $parent->id }}" {{ $category->parent_id == $parent->id ? 'selected' : '' }}>
-                        {{ $parent->name }}
-                    </option>
+                @foreach ($categories as $cat)
+                    @include('categories.category-options', [
+                        'category' => $cat, 
+                        'prefix' => '', 
+                        'selectedCategory' => $category->parent_id
+                    ])
                 @endforeach
             </select>
         </div>
