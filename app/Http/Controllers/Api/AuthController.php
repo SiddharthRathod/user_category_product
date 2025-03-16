@@ -145,7 +145,7 @@ class AuthController extends BaseController
      *          )
      *      )
      * )
-     */
+    */
     public function logout(Request $request)
     {
         $success['name'] =  $request->user()->name;
