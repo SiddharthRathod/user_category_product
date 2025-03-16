@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Api\BaseController as BaseController;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
+use Validator;
+use Illuminate\Http\JsonResponse;
 
 /**
  * @OA\Info(
@@ -19,7 +22,7 @@ use Illuminate\Support\Facades\Hash;
  *     description="Endpoints for user authentication"
  * )
  */
-class AuthController extends Controller
+class AuthController extends BaseController
 {
     /**
      * @OA\Post(
@@ -52,24 +55,26 @@ class AuthController extends Controller
      *      )
      * )
      */
-    public function register(Request $request)
+    public function register(Request $request): JsonResponse
     {
-        dd($request);
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:6|confirmed',
+        $validator = Validator::make($request->all(), [
+            'name' => 'required',
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
+            'password' => 'required',
+            'c_password' => 'required|same:password',
         ]);
-
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-        ]);
-
-        $token = $user->createToken('API Token')->plainTextToken;
-
-        return response()->json(['user' => $user, 'token' => $token], 201);
+   
+        if($validator->fails()){
+            return $this->sendError('Validation Error.', $validator->errors());       
+        }
+   
+        $input = $request->all();
+        $input['password'] = bcrypt($input['password']);
+        $user = User::create($input);
+        $success['token'] =  $user->createToken('MyApp')->plainTextToken;
+        $success['name'] =  $user->name;
+   
+        return $this->sendResponse($success, 'User register successfully.');
     }
 
     /**
@@ -101,23 +106,27 @@ class AuthController extends Controller
      *      )
      * )
      */
-
-    public function login(Request $request)
+    public function login(Request $request): JsonResponse
     {
-        $request->validate([
-            'email' => 'required|string|email',
-            'password' => 'required|string',
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email',
+            'password' => 'required',
         ]);
 
-        $user = User::where('email', $request->email)->first();
-
-        if (!$user || !Hash::check($request->password, $user->password)) {
-            return response()->json(['error' => 'Invalid credentials'], 401);
+        if($validator->fails()){
+            return $this->sendError('Validation Error.', $validator->errors());       
         }
 
-        $token = $user->createToken('API Token')->plainTextToken;
-
-        return response()->json(['user' => $user, 'token' => $token]);
+        if(Auth::attempt(['email' => $request->email, 'password' => $request->password])){ 
+            $user = Auth::user(); 
+            $success['token'] =  $user->createToken('MyApp')->plainTextToken; 
+            $success['name'] =  $user->name;
+   
+            return $this->sendResponse($success, 'User login successfully.');
+        } 
+        else{ 
+            return $this->sendError('Unauthorised.', ['error'=>'Unauthorised']);
+        } 
     }
 
     /**
@@ -139,8 +148,12 @@ class AuthController extends Controller
      */
     public function logout(Request $request)
     {
-        $request->user()->tokens()->delete();
-        return response()->json(['message' => 'Logged out']);
+        $success['name'] =  $request->user()->name;
+        if($request->user()->tokens()->delete()){
+            return $this->sendResponse($success, 'Logged out successfully.');
+        } else{ 
+            return $this->sendError('Unauthorised.', ['error'=>'Unauthorised']);
+        }        
     }
 }
 

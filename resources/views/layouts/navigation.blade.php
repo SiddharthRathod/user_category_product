@@ -23,6 +23,11 @@
                             <x-nav-link :href="route('products.index')" :active="request()->routeIs('products.index')">
                                 {{ __('Products') }}
                             </x-nav-link>
+                        @endif
+                        @if(auth()->user()->hasRole('admin'))
+                            <x-nav-link :href="route('admin.index')" :active="request()->routeIs('admin.index')">
+                                {{ __('Users') }}
+                            </x-nav-link>
                         @endif    
                     @endauth
                 </div>

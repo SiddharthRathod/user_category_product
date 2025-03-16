@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\AdminController;
 
 Route::get('/', [ProductController::class, 'productDashboard'])->name('home');
 Route::get('/products/data', [ProductController::class, 'getProducts'])->name('products.data');
@@ -18,6 +19,7 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
+    // User Routes
     Route::middleware(['role:user'])->group(function () {
         
         // Category Routes
@@ -33,13 +35,13 @@ Route::middleware('auth')->group(function () {
 
     });
 
+    // Admin Routes
+    Route::middleware(['role:admin'])->group(function () {
+        Route::get('/admin', [AdminController::class, 'index'])->name('admin.index');
+    });
+
 });
 
-Route::get('/products/{id}', [ProductController::class, 'show'])->name('products.show');
+Route::get('/product-detail/{id}', [ProductController::class, 'detail'])->name('products.detail');
 
 require __DIR__.'/auth.php';
-
-
-// Route::middleware(['role:Admin'])->group(function () {
-//     Route::get('/admin', [AdminController::class, 'index']);
-// });
