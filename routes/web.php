@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\UploadController;
 
 Route::get('/', [ProductController::class, 'productDashboard'])->name('home');
 Route::get('/products/data', [ProductController::class, 'getProducts'])->name('products.data');
@@ -43,5 +44,6 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::get('/product-detail/{id}', [ProductController::class, 'detail'])->name('products.detail');
+Route::get('upload', [UploadController::class, 'index'])->name('upload.index');
 
 require __DIR__.'/auth.php';
