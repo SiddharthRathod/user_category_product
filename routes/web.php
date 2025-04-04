@@ -6,6 +6,9 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\UploadController;
+use App\Http\Controllers\ContactImportController;
+use Illuminate\Support\Facades\Broadcast;
+
 
 Route::get('/', [ProductController::class, 'productDashboard'])->name('home');
 Route::get('/products/data', [ProductController::class, 'getProducts'])->name('products.data');
@@ -45,5 +48,8 @@ Route::middleware('auth')->group(function () {
 
 Route::get('/product-detail/{id}', [ProductController::class, 'detail'])->name('products.detail');
 Route::get('upload', [UploadController::class, 'index'])->name('upload.index');
+Route::post('csv-upload', [ContactImportController::class, 'upload'])->name('contacts.csv-upload');
+
+Broadcast::routes();
 
 require __DIR__.'/auth.php';

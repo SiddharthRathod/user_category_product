@@ -32,3 +32,7 @@ php artisan vendor:publish --provider "L5Swagger\L5SwaggerServiceProvider"
 Generate documentation:
 --------------------------
 php artisan l5-swagger:generate
+
+siddharthr.web@gmail.com
+siddharthr-web
+S!ddh@rth@065
